@@ -6,7 +6,7 @@ import "hardhat/console.sol";
 import "./VRFV2Consumer.sol";
 import "@chainlink/contracts/src/v0.8/KeeperCompatible.sol";
 
-contract LotteryChainLink is KeeperCompatible {
+contract LotteryChainLink is KeeperCompatible, VRFV2Consumer {
     enum LotteryState {
         OPEN,
         CLOSE
@@ -27,10 +27,12 @@ contract LotteryChainLink is KeeperCompatible {
     constructor(
         uint256 entranceFee_,
         uint256 interval_,
-        address VRFcontract_
-    ) {
+        // address VRFcontract_,
+        uint64 subscriptionId,
+        address vrfCoordinator
+    ) VRFV2Consumer(subscriptionId, vrfCoordinator) {
         _entranceFee = entranceFee_;
-        VRFcontract = VRFV2Consumer(VRFcontract_);
+        // VRFcontract = VRFV2Consumer(VRFcontract_);
         interval = interval_;
         _lotteryActualState = LotteryState.OPEN;
     }
@@ -75,21 +77,21 @@ contract LotteryChainLink is KeeperCompatible {
         //         members.length > 2 &&
         //         address(this).balance > 0
         // );
-        VRFcontract.requestRandomWords();
-        // uint256 randomNumber = VRFcontract.s_randomWords(1);
-        // console.log(address(this).balance);
-        // console.log(randomNumber);
-        // uint256 winner = randomNumber % members.length;
-        // lastWinner = members[winner];
-        // delete members;
-        // lastTimeStamp = block.timestamp;
-        // (bool success, ) = lastWinner.call{value: address(this).balance}("");
-        // if (!success) {
-        //     revert("Not enough balance to transfer");
-        // }
-        // _lotteryActualState = LotteryState.CLOSE;
-        // console.log(lastWinner);
-        // emit WinnerIs(lastWinner);
+        requestRandomWords();
+        uint256 randomNumber = s_randomWords[0];
+        console.log(address(this).balance);
+        console.log(randomNumber);
+        uint256 winner = randomNumber % members.length;
+        lastWinner = members[winner];
+        delete members;
+        lastTimeStamp = block.timestamp;
+        (bool success, ) = lastWinner.call{value: address(this).balance}("");
+        if (!success) {
+            revert("Not enough balance to transfer");
+        }
+        _lotteryActualState = LotteryState.CLOSE;
+        console.log(lastWinner);
+        emit WinnerIs(lastWinner);
     }
 
     function showFee() external view returns (uint256) {
