@@ -53,21 +53,23 @@ async function deploy() {
     const providerr = await new ethers.providers.JsonRpcProvider("http://127.0.0.1:8545/");
     const waller = await new ethers.Wallet("0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d", providerr)
     await lotteryInstance.connect(waller).enterRaffle({ value: ethers.utils.parseEther("0.1") });
-    await lotteryInstance.enterRaffle({ value: ethers.utils.parseEther("1") });
-    await lotteryInstance.requestRandomWords();
+    await lotteryInstance.enterRaffle({ value: ethers.utils.parseEther("0.1") });
+    await lotteryInstance.performUpkeep("0x00");
     await vRFCoordinatorV2Instance.fulfillRandomWords(1, lotteryInstance.address);
+    console.log("23")
+    await lotteryInstance.a();
     console.log("1");
     // await VRFConsumerInstance.requestRandomWords();
-    let words = await lotteryInstance.getRandomWords();
-    console.log(words.toString());
-    let txxx = await lotteryInstance.performUpkeep("0x00");
-    let txReceipt = await txxx.wait(1);
-    let winner = txReceipt.events[1].args.requestId_;
-    console.log(winner.toString());
-    balancee = await vRFCoordinatorV2Instance.getSubscription(subId_);
-    console.log(balancee)
-    99980644499999999000000000
-    1000000000000000000
+    // let words = await lotteryInstance.getRandomWords();
+    // console.log(words.toString());
+    // let txxx = await lotteryInstance.performUpkeep("0x00");
+    // let txReceipt = await txxx.wait(1);
+    // let winner = txReceipt.events[1].args.requestId_;
+    // console.log(winner.toString());
+    // balancee = await vRFCoordinatorV2Instance.getSubscription(subId_);
+    // console.log(balancee)
+    // 99980644499999999000000000
+    // 1000000000000000000
 
     // Lottery = await ethers.getContractFactory("LotteryChainLink");
     // lotteryInstance = await Lottery.deploy(entranceFee_, interval_, VRFConsumerContractAddress_);
